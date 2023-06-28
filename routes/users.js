@@ -1,3 +1,5 @@
+const { MongoClient } = require('mongodb');
+const  config  = require('../config');
 const bcrypt = require('bcrypt');
 
 const {
@@ -9,8 +11,8 @@ const {
   getUsers,
 } = require('../controller/users');
 
-const initAdminUser = (app, next) => {
-  const { adminEmail, adminPassword } = app.get('config');
+const initAdminUser = async (app, next) => {
+  const { adminEmail, adminPassword, dbUrl } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
   }
@@ -21,12 +23,27 @@ const initAdminUser = (app, next) => {
     roles: { admin: true },
   };
 
-  // TODO: crear usuaria admin
-  // Primero ver si ya existe adminUser en base de datos
-  // si no existe, hay que guardarlo
+  try {
+    const client = new MongoClient(dbUrl);
+    await client.connect();
+    const db = client.db();
+    const usersCollection = db.collection('users');
+    const user = await usersCollection.findOne({ email: adminUser.email });
+    console.log(!user)
+    if (!user) {
+      await usersCollection.insertOne(adminUser);
+      console.log('Admin user created successfully');
+    } else {
+      console.log('Admin user already exists');
+    }
 
-  next();
-};
+    client.close();
+    return next();
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+}
 
 /*
  * Diagrama de flujo de una aplicación y petición en node - express :
@@ -77,7 +94,7 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si no es ni admin
    */
-  app.get('/users', requireAdmin, getUsers);
+  app.get('/users', /* requireAdmin, */ getUsers);
 
   /**
    * @name GET /users/:uid
@@ -117,9 +134,93 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si ya existe usuaria con ese `email`
    */
-  app.post('/users', requireAdmin, (req, resp, next) => {
+  app.post('/users', requireAdmin, async (req, resp, next) => {
     // TODO: implementar la ruta para agregar
     // nuevos usuarios
+/*     const { email, password, roles } = req.body;
+
+  if (!email || !password) {
+    return next(400);
+  }
+  console.log("hola mundo 2");
+  console.log(config);
+  const client = new MongoClient(config.dbUrl);
+  await client.connect();
+  console.log('Connected successfully to server');
+  const db = client.db();
+  console.log('no');
+  const usersCollection = db.collection('users');
+  console.log('noo');
+  // the following code examples can be pasted here...
+  const newUser = {
+    email,
+    password: bcrypt.hashSync(password, 10),
+    roles: roles || {},
+  };
+
+  const insertedUser = await usersCollection.insertOne(newUser);
+  console.log(insertedUser);
+  await client.close();
+  console.log('nooo');
+  resp.status(200).json({
+    _id: insertedUser.insertedId,
+    email: insertedUser.email,
+    roles: insertedUser.roles,
+  }); */
+  /* return next(200); */
+/*   console.log(config.dbUrl);
+  client.connect(async (err) => {
+    try {
+    if (err) {
+      console.error('Error al conectar a la base de datos:', err);
+      return next(500);
+    }
+    console.log("hola mundo 4");
+    const db = client.db();
+    console.log("hola mundo 5");
+    const usersCollection = db.collection('users');
+    console.log("hola mundo 3");
+    // Verificar si ya existe una usuaria con el mismo email
+    usersCollection.findOne({ email }, (err, existingUser) => {
+      if (err) {
+        console.error('Error al buscar la usuaria:', err);
+        client.close();
+        return next(500);
+      }
+
+      if (existingUser) {
+        client.close();
+        return next(403);
+      }
+
+      const newUser = {
+        email,
+        password: bcrypt.hashSync(password, 10),
+        roles: roles || {},
+      };
+
+      usersCollection.insertOne(newUser, (err, result) => {
+        if (err) {
+          console.error('Error al agregar la usuaria:', err);
+          client.close();
+          return next(500);
+        }
+
+        const insertedUser = result.ops[0];
+        client.close();
+        resp.status(201).json({
+          _id: insertedUser._id,
+          email: insertedUser.email,
+          roles: insertedUser.roles,
+        });
+      });
+    });
+  }
+  catch (err) {
+    console.log(err);
+  }
+  });
+  console.log("no connect") */
   });
 
   /**

@@ -19,17 +19,21 @@ module.exports = (secret) => (req, resp, next) => {
     }
 
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
+    req.userId = decodedToken.userId;
+    next();
   });
 };
 
 module.exports.isAuthenticated = (req) => (
   // TODO: decidir por la informacion del request si la usuaria esta autenticada
-  false
+  !!req.userId
+  /* false */
 );
 
 module.exports.isAdmin = (req) => (
   // TODO: decidir por la informacion del request si la usuaria es admin
-  false
+  !!req.isAdmin
+  /* false */
 );
 
 module.exports.requireAuth = (req, resp, next) => (
