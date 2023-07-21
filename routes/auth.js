@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const config = require('../config');
+const User = require('../modules/users.js');
 
 const { secret } = config;
 
@@ -29,8 +31,14 @@ module.exports = (app, nextMain) => {
     // coinciden con un user en la base de datos
     // Si coinciden, manda un access token creado con jwt
 
-    next();
+    User.findOne({ email }).then((user) => {
+      if (user && bcrypt.compareSync(password, user.password) === true) {
+        const token = jwt.sign({ id: user._id, email: user.email, password }, secret);
+        resp.status(200).json({ token });
+      } else {
+        next(404);
+      }
+    });
   });
-
   return nextMain();
 };

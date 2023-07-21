@@ -8,6 +8,7 @@
   },
   "scripts": {
     "pretest": "eslint .",
+    "dev": "nodemon index.js",
     "start": "node index.js",
     "test:e2e": "jest --verbose --testPathPattern e2e --globalSetup ./e2e/globalSetup --globalTeardown ./e2e/globalTeardown --runInBand",
     "test:unit": "jest --verbose --testPathIgnorePatterns e2e",
@@ -22,7 +23,9 @@
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mongodb-memory-server": "^8.12.2"
+    "mongodb": "5.7",
+    "mongodb-memory-server": "^8.12.2",
+    "mongoose": "^7.4.0"
   },
   "devDependencies": {
     "docdash": "^1.2.0",

@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const User = require('../modules/users.js');
 
 const {
   requireAuth,
@@ -7,7 +8,8 @@ const {
 
 const {
   getUsers,
-} = require('../controller/users');
+} = require('../controller/users.js');
+//const users = require('../controller/users');
 
 const initAdminUser = (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');
@@ -24,6 +26,19 @@ const initAdminUser = (app, next) => {
   // TODO: crear usuaria admin
   // Primero ver si ya existe adminUser en base de datos
   // si no existe, hay que guardarlo
+  User.findOne({ email: adminUser.email }).then((users) => {
+    if (!users) {
+      User.create(adminUser).then((createAdmin) => {
+        console.log(`Usuario creado${createAdmin}`);
+      }).catch((error) => {
+        console.error('Error al crear admin:', error);
+      });
+    } else {
+      console.log('Administrador ya existe');
+    }
+  }).catch((error) => {
+    console.error(error);
+  });
 
   next();
 };
