@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+// eslint-disable-next-line import/extensions, import/no-unresolved
+const User = require('../modules/users.js');
 
 module.exports = (secret) => (req, resp, next) => {
   const { authorization } = req.headers;
@@ -13,23 +15,34 @@ module.exports = (secret) => (req, resp, next) => {
     return next();
   }
 
-  jwt.verify(token, secret, (err, decodedToken) => {
+  // req.headers.Authorization = token;
+
+  jwt.verify(token, secret, async (err, decodedToken) => {
     if (err) {
+      // Acceso prohibido
       return next(403);
     }
-
+    // console.log(decodedToken);
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
+    req.user = await User.findById(decodedToken.id);
+    // console.log(req);
+    if (!req.user) {
+      next(404);
+    }
+    return next();
   });
 };
 
 module.exports.isAuthenticated = (req) => (
   // TODO: decidir por la informacion del request si la usuaria esta autenticada
-  false
+  // La doble negación (!!) se utiliza para convertir el valor de req.user en un booleano.
+  !!req.user
+  // false
 );
-
 module.exports.isAdmin = (req) => (
   // TODO: decidir por la informacion del request si la usuaria es admin
-  false
+  !!req.isAdmin
+  // false
 );
 
 module.exports.requireAuth = (req, resp, next) => (

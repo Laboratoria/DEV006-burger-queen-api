@@ -5,14 +5,14 @@ const mongoose = require('mongoose');
 const { dbUrl } = config;
 
 async function connect() {
-  try{
+  try {
     console.log('conectando bd')
     await mongoose.connect(dbUrl, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     console.log('successful connection ');
-  }catch (error) {
+  } catch (error) {
     console.error(error + 'Failed to connect');
   }
 }

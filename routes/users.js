@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+// eslint-disable-next-line import/extensions
 const User = require('../modules/users.js');
 
 const {
@@ -8,8 +9,9 @@ const {
 
 const {
   getUsers,
+// eslint-disable-next-line import/extensions
 } = require('../controller/users.js');
-//const users = require('../controller/users');
+// const users = require('../controller/users');
 
 const initAdminUser = (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');
@@ -34,6 +36,7 @@ const initAdminUser = (app, next) => {
         console.error('Error al crear admin:', error);
       });
     } else {
+      // eslint-disable-next-line no-console
       console.log('Administrador ya existe');
     }
   }).catch((error) => {
@@ -132,7 +135,7 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si ya existe usuaria con ese `email`
    */
-  app.post('/users', requireAdmin, (req, resp, next) => {
+  app.post('/users', requireAdmin, async (req, resp, next) => {
     // TODO: implementar la ruta para agregar
     // nuevos usuarios
   });
