@@ -22,10 +22,9 @@ module.exports = (secret) => (req, resp, next) => {
       // Acceso prohibido
       return next(403);
     }
-    // console.log(decodedToken);
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
     req.user = await User.findById(decodedToken.id);
-    // console.log(req);
+    console.log(req);
     if (!req.user) {
       next(404);
     }

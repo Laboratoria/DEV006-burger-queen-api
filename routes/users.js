@@ -96,7 +96,6 @@ module.exports = (app, next) => {
    * @code {403} si no es ni admin
    */
   app.get('/users', requireAdmin, getUsers);
-
   /**
    * @name GET /users/:uid
    * @description Obtiene información de una usuaria

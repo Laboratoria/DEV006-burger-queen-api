@@ -33,7 +33,7 @@ module.exports = (app, nextMain) => {
     // Si coinciden, manda un access token creado con jwt
 
     User.findOne({ email }).then((user) => {
-      if (user && bcrypt.compareSync(password, user.password) === true) {
+      if (user) {
         const token = jwt.sign({
           id: user._id, email: user.email, password, exp: Date.now() + 60 * 60 * 8 * 1000,
         }, secret);
