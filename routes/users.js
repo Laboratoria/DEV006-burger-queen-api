@@ -9,6 +9,7 @@ const {
 
 const {
   getUsers,
+  getUserByIdOrEmail,
 // eslint-disable-next-line import/extensions
 } = require('../controller/users.js');
 // const users = require('../controller/users');
@@ -112,8 +113,7 @@ module.exports = (app, next) => {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
-  app.get('/users/:uid', requireAuth, (req, resp) => {
-  });
+  app.get('/users/:uid', requireAuth, getUserByIdOrEmail);
 
   /**
    * @name POST /users

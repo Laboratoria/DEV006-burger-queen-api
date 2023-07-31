@@ -4,7 +4,6 @@ const User = require('../modules/users.js');
 
 module.exports = (secret) => (req, resp, next) => {
   const { authorization } = req.headers;
-
   if (!authorization) {
     return next();
   }
@@ -24,7 +23,6 @@ module.exports = (secret) => (req, resp, next) => {
     }
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
     req.user = await User.findById(decodedToken.id);
-    console.log(req);
     if (!req.user) {
       next(404);
     }
@@ -32,17 +30,21 @@ module.exports = (secret) => (req, resp, next) => {
   });
 };
 
-module.exports.isAuthenticated = (req) => (
+module.exports.isAuthenticated = (req) => {
   // TODO: decidir por la informacion del request si la usuaria esta autenticada
   // La doble negación (!!) se utiliza para convertir el valor de req.user en un booleano.
-  !!req.user
-  // false
-);
-module.exports.isAdmin = (req) => (
+  if (req.user) {
+    return true;
+  }
+  return false;
+};
+module.exports.isAdmin = (req) => {
   // TODO: decidir por la informacion del request si la usuaria es admin
-  !!req.isAdmin
-  // false
-);
+  if (req.user.role === 'admin') {
+    return true;
+  }
+  return false;
+};
 
 module.exports.requireAuth = (req, resp, next) => (
   (!module.exports.isAuthenticated(req))
@@ -54,6 +56,7 @@ module.exports.requireAdmin = (req, resp, next) => (
   // eslint-disable-next-line no-nested-ternary
   (!module.exports.isAuthenticated(req))
     ? next(401)
+    // Unauthorized
     : (!module.exports.isAdmin(req))
       ? next(403)
       : next()
