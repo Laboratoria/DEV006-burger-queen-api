@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const jwt = require('jsonwebtoken');
 
 module.exports = (secret) => (req, resp, next) => {
@@ -14,23 +13,28 @@ module.exports = (secret) => (req, resp, next) => {
     return next();
   }
 
+  // esta funcion se ejecuta en cualquier tipo de breakpoint y verifica el token de la petición
+
   jwt.verify(token, secret, (err, decodedToken) => {
     if (err) {
       return next(403);
     }
-
     // TODO: Verificar identidad del usuario usando `decodeToken.uid`
+    req.auth = decodedToken.userId;
+    req.rol = decodedToken.rol;
+    req.email = decodedToken.email;
+    next();
   });
 };
 
 module.exports.isAuthenticated = (req) => (
   // TODO: decidir por la informacion del request si la usuaria esta autenticada
-  false
+  (!!req.auth)
 );
 
 module.exports.isAdmin = (req) => (
   // TODO: decidir por la informacion del request si la usuaria es admin
-  false
+  req.rol === 'admin'
 );
 
 module.exports.requireAuth = (req, resp, next) => (
