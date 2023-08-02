@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+const { MongoClient } = require('mongodb');
 const bcrypt = require('bcrypt');
 
 const {
@@ -9,8 +11,8 @@ const {
   getUsers,
 } = require('../controller/users');
 
-const initAdminUser = (app, next) => {
-  const { adminEmail, adminPassword } = app.get('config');
+const initAdminUser = async (app, next) => {
+  const { adminEmail, adminPassword, dbUrl } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
   }
@@ -18,14 +20,27 @@ const initAdminUser = (app, next) => {
   const adminUser = {
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
-    roles: { admin: true },
+    role: 'admin',
   };
 
-  // TODO: crear usuaria admin
-  // Primero ver si ya existe adminUser en base de datos
-  // si no existe, hay que guardarlo
+  try {
+    const client = new MongoClient(dbUrl);
+    await client.connect();
+    const db = client.db();
+    const collection = db.collection('users');
+    const user = await collection.findOne({ email: adminUser.email });
+    if (!user) {
+      await collection.insertOne(adminUser);
+      console.log('se agrego un usuario admin');
+    } else {
+      console.log('error al agregar usuario admin');
+    }
 
-  next();
+    client.close();
+    return next();
+  } catch (err) {
+    next(err);
+  }
 };
 
 /*

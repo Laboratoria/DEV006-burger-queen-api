@@ -7,7 +7,6 @@ const pkg = require('./package.json');
 
 const { port, secret } = config;
 const app = express();
-
 app.set('config', config);
 app.set('pkg', pkg);
 
@@ -28,3 +27,11 @@ routes(app, (err) => {
     console.info(`App listening on port ${port}`);
   });
 });
+
+// const app = express();
+
+// app.use('/', function (req,res){
+//   res.send('Hola')
+// })
+// app.listen(8080);
+// console.log('La aplicación esta escuchando')

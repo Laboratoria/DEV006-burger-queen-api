@@ -20,8 +20,9 @@
     "@shelf/jest-mongodb": "^4.1.7",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "jsonwebtoken": "^8.5.1",
+    "mongodb": "^5.7.0",
     "mongodb-memory-server": "^8.12.2"
   },
   "devDependencies": {
@@ -33,7 +34,7 @@
     "jest": "^27.0.1",
     "jsdoc": "^3.6.6",
     "jsdoc-http-plugin": "^0.3.2",
-    "node-fetch": "^3.1.0",
+    "node-fetch": "^3.3.2",
     "tree-kill": "^1.2.2"
   },
   "bootcamp": {

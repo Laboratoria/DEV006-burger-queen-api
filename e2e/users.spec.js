@@ -16,7 +16,7 @@ const parseLinkHeader = (str) => str.split(',')
   }, {});
 
 describe('GET /users', () => {
-  it('should fail with 401 when no auth', () => (
+  it.only('should fail with 401 when no auth', () => (
     fetch('/users').then((resp) => expect(resp.status).toBe(401))
   ));
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const jwt = require('jsonwebtoken');
 
 module.exports = (secret) => (req, resp, next) => {
