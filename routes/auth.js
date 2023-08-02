@@ -6,9 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const config = require('../config');
 
-const { dbUrl } = config;
-
-const { secret } = config;
+const { dbUrl, secret } = config;
 
 /** @module auth */
 module.exports = (app, nextMain) => {
@@ -25,11 +23,7 @@ module.exports = (app, nextMain) => {
    * @auth No requiere autenticación
    */
   app.post('/auth', async (req, resp, next) => {
-    const { email, password } = req.body;
-    const adminemail = email;
-    const adminpassword = password;
-
-    if (!email || !password) {
+    if (!req.body.email || !req.body.password) {
       return next(400);
     }
 
@@ -38,14 +32,14 @@ module.exports = (app, nextMain) => {
       await client.connect();
       const db = client.db();
       const collection = db.collection('users');
-      const user = await collection.findOne({ email: adminemail });
+      const user = await collection.findOne({ email: req.body.email });
       if (!user) {
-        resp.send('no se encontro');
+        resp.send('Invalid Email or Password.');
       }
-      const validPassword = await bcrypt.compare(adminpassword, user.password);
-      if (!validPassword) return resp.send('Invalid Email or Password.');
-      resp.send('si');
-      client.close();
+      const validPassword = await bcrypt.compare(req.body.password, user.password);
+      if (!validPassword) resp.send('Invalid Email or Password.');
+      const accessToken = jwt.sign({ userId: user._id, rol: user.role, email: user.email }, secret);
+      resp.status(200).json({ accessToken });
     } catch (err) {
       /* d */
     }
