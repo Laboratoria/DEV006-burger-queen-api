@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/extensions
+const bcrypt = require('bcrypt');
 const { ObjectId } = require('mongodb');
+// eslint-disable-next-line import/extensions
 const User = require('../modules/users.js');
 // eslint-disable-next-line import/extensions
 // const isAdmin = require('../middleware/auth.js');
@@ -47,7 +49,6 @@ module.exports = {
     const { uid } = req.params;
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(uid);
     let filter;
-    console.log(isObjectId);
 
     if (isObjectId) {
       filter = { _id: new ObjectId(uid) };
@@ -58,7 +59,7 @@ module.exports = {
     try {
       const isAdmin = req.isAdmin === true;
       const authorizedUser = req.user.id === uid || isAdmin || req.user.email === uid;
-      console.log(authorizedUser);
+
       if (!authorizedUser) {
         return next(403);
       }
@@ -78,6 +79,49 @@ module.exports = {
       }
     } catch (error) {
       console.error(error);
+      resp.status(500).json({
+        error: 'Server error',
+      });
+    }
+  },
+
+  createUser: async (req, resp, next) => {
+    const { email, password, role } = req.body;
+    if (!email || !password || !role) {
+      return next(400);
+    }
+
+    try {
+      const isAdmin = req.isAdmin === true;
+      const authorizedUser = req.user.role === 'admin' || isAdmin;
+
+      if (!authorizedUser) {
+        return resp.status(403).json({
+          error: 'You are not authorized to create a new user',
+        });
+      }
+
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return resp.status(403).json({
+          error: 'User exists',
+        });
+      }
+
+      const newUser = new User({
+        email,
+        password: bcrypt.hashSync(password, 10),
+        role,
+      });
+
+      const insertedUser = await newUser.save();
+      resp.status(200).json({
+        id: insertedUser._id,
+        email,
+        role,
+      });
+    } catch (err) {
+      console.error(err);
       resp.status(500).json({
         error: 'Server error',
       });

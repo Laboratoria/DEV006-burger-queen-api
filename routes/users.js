@@ -10,6 +10,7 @@ const {
 const {
   getUsers,
   getUserByIdOrEmail,
+  createUser,
 // eslint-disable-next-line import/extensions
 } = require('../controller/users.js');
 // const users = require('../controller/users');
@@ -134,10 +135,7 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si ya existe usuaria con ese `email`
    */
-  app.post('/users', requireAdmin, async (req, resp, next) => {
-    // TODO: implementar la ruta para agregar
-    // nuevos usuarios
-  });
+  app.post('/users', requireAdmin, createUser);
 
   /**
    * @name PUT /users
@@ -161,6 +159,7 @@ module.exports = (app, next) => {
    * @code {403} una usuaria no admin intenta de modificar sus `roles`
    * @code {404} si la usuaria solicitada no existe
    */
+  // eslint-disable-next-line no-unused-vars
   app.put('/users/:uid', requireAuth, (req, resp, next) => {
   });
 
@@ -180,6 +179,7 @@ module.exports = (app, next) => {
    * @code {403} si no es ni admin o la misma usuaria
    * @code {404} si la usuaria solicitada no existe
    */
+  // eslint-disable-next-line no-unused-vars
   app.delete('/users/:uid', requireAuth, (req, resp, next) => {
   });
 
