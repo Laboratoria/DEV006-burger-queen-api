@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 const { MongoClient } = require('mongodb');
+const bcrypt = require('bcrypt');
 const config = require('../config');
 
 const { dbUrl } = config;
@@ -11,7 +12,8 @@ module.exports = {
       await client.connect();
       const db = client.db();
       const collection = db.collection('users');
-      console.log(collection);
+      const usuarios = await collection.find({}).toArray();
+      resp.send(usuarios);
     } catch (error) {
       /* h */
     }
