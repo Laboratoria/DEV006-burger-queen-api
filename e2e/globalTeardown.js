@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 const kill = require('tree-kill');
 
 module.exports = () => new Promise((resolve) => {

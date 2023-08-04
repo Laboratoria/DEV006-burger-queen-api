@@ -32,7 +32,6 @@ module.exports = (secret) => (req, resp, next) => {
 
 module.exports.isAuthenticated = (req) => {
   // TODO: decidir por la informacion del request si la usuaria esta autenticada
-  // La doble negación (!!) se utiliza para convertir el valor de req.user en un booleano.
   if (req.user) {
     return true;
   }

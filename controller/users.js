@@ -13,8 +13,6 @@ module.exports = {
       const { page = 1, limit = 10 } = req.query;
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
-
-      // Calcular el número total de usuarios
       const totalUsers = await User.countDocuments();
 
       // Calcular el número total de páginas
@@ -49,6 +47,9 @@ module.exports = {
     const { uid } = req.params;
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(uid);
     let filter;
+    // Se crea un objeto filter para usar en la búsqueda del usuario en la base de datos.
+    // Si uid es un ObjectId, el filtro se establece para buscar por _id.
+    // Si no, se buscará por email.
 
     if (isObjectId) {
       filter = { _id: new ObjectId(uid) };
@@ -57,7 +58,9 @@ module.exports = {
     }
 
     try {
+      // Verificar si el token pertenece a una usuaria administradora
       const isAdmin = req.isAdmin === true;
+      // Verificar si el token pertenece a la misma usuaria o si es una usuaria administradora
       const authorizedUser = req.user.id === uid || isAdmin || req.user.email === uid;
 
       if (!authorizedUser) {
@@ -90,31 +93,33 @@ module.exports = {
     if (!email || !password || !role) {
       return next(400);
     }
-
+    // Verificar si el token pertenece a una usuaria administradora
     try {
-      const isAdmin = req.isAdmin === true;
-      const authorizedUser = req.user.role === 'admin' || isAdmin;
+    // Verificar si el usuario que realiza la solicitud tiene el rol de administrador
+      const authorizedUser = req.user.role === 'admin';
 
       if (!authorizedUser) {
         return resp.status(403).json({
           error: 'You are not authorized to create a new user',
         });
       }
-
+      // Verificar si ya existe una usuaria con el mismo email
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return resp.status(403).json({
           error: 'User exists',
         });
       }
-
+      // Si el usuario está autorizado y no existe un usuario con el mismo email,
+      // crear un nuevo usuario
       const newUser = new User({
         email,
         password: bcrypt.hashSync(password, 10),
         role,
       });
-
+      // Guardar el nuevo usuario en la base de datos
       const insertedUser = await newUser.save();
+      // Devolver una respuesta exitosa con la información del usuario creado
       resp.status(200).json({
         id: insertedUser._id,
         email,
