@@ -170,4 +170,38 @@ module.exports = {
       });
     }
   },
+
+  deleteUser: async (req, resp, next) => {
+    const { uid } = req.params;
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(uid);
+    let filteredUser;
+
+    if (isObjectId) {
+      filteredUser = { _id: uid };
+    } else {
+      filteredUser = { email: uid.toLowerCase() };
+    }
+
+    try {
+      const authorizedUser = (req.user.role === 'admin') || (req.user === uid || req.user.email === uid);
+
+      if (!authorizedUser) {
+        return resp.status(403).json({
+          error: 'You do not have authorization to delete this user',
+        });
+      }
+      const dropUser = await User.deleteOne(filteredUser).exec();
+      if (dropUser) {
+        return resp.status(200).json({
+          id: dropUser._id,
+          email: dropUser.email,
+          role: dropUser.role,
+        });
+      }
+    } catch (error) {
+      return next(404).json({
+        error: 'User not found',
+      });
+    }
+  },
 };
