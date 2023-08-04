@@ -132,4 +132,42 @@ module.exports = {
       });
     }
   },
+
+  updateUserInformation: async (req, resp, next) => {
+    const { uid } = req.params;
+    const { email, password, role } = req.body;
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(uid);
+    let filteredUser;
+
+    if (isObjectId) {
+      filteredUser = { _id: uid };
+    } else {
+      filteredUser = { email: uid.toLowerCase() };
+    }
+
+    try {
+      const authorizedUser = (req.user.role === 'admin') || (req.user === uid || req.user.email === uid);
+
+      if (!authorizedUser) {
+        return resp.status(403).json({
+          error: 'You are not authorized to modify this user',
+        });
+      }
+      const user = await User.findOne(filteredUser).exec();
+      if (req.user.role !== 'admin' && (role && role !== user.role)) {
+        return next(403).json({
+          error: 'You are not allowed to change the user role',
+        });
+      }
+      if (password) {
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const updateUser = await User.updateOne(filteredUser, { email, password: hashedPassword, role }, { new: true, select: '_id email role' });
+        return resp.status(200).json(updateUser);
+      }
+    } catch (error) {
+      resp.status(404).json({
+        error: 'User not found',
+      });
+    }
+  },
 };

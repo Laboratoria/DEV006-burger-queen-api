@@ -11,6 +11,7 @@ const {
   getUsers,
   getUserByIdOrEmail,
   createUser,
+  updateUserInformation,
 // eslint-disable-next-line import/extensions
 } = require('../controller/users.js');
 // const users = require('../controller/users');
@@ -160,8 +161,7 @@ module.exports = (app, next) => {
    * @code {404} si la usuaria solicitada no existe
    */
   // eslint-disable-next-line no-unused-vars
-  app.put('/users/:uid', requireAuth, (req, resp, next) => {
-  });
+  app.put('/users/:uid', requireAuth, updateUserInformation);
 
   /**
    * @name DELETE /users
