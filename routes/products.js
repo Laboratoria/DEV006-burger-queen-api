@@ -4,7 +4,8 @@ const {
 } = require('../middleware/auth');
 
 const {
-  createProducts
+  createProducts,
+  getProductsCollection,
 // eslint-disable-next-line import/extensions
 } = require('../controller/products.js');
 
@@ -32,8 +33,7 @@ module.exports = (app, nextMain) => {
    * @code {200} si la autenticación es correcta
    * @code {401} si no hay cabecera de autenticación
    */
-  app.get('/products', requireAuth, (req, resp, next) => {
-  });
+  app.get('/products', requireAuth, getProductsCollection);
 
   /**
    * @name GET /products/:productId

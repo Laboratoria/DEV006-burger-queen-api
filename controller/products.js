@@ -31,7 +31,7 @@ module.exports = {
         id: result.insertedId,
         name: newProduct.name,
         price: newProduct.price,
-        image: newProduct.image,
+        image: newProduct.Image,
         type: newProduct.type,
         dataEntry: newProduct.dataEntry,
       });
@@ -39,4 +39,44 @@ module.exports = {
       next(error);
     }
   },
+
+  getProductsCollection: async (req, resp, next) => {
+    try {
+      // Obtener los parámetros de consulta de página y límite
+      const { page = 1, limit = 10 } = req.query;
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+      const totalUsers = await Products.countDocuments();
+
+      // Calcular el número total de páginas
+      const totalPages = Math.ceil(totalUsers / limitNumber);
+
+      // Calcular el índice de inicio y fin para la consulta
+      const startIndex = (pageNumber - 1) * limitNumber;
+
+      // Obtener la lista de productos paginada
+      const products = await Products.find({})
+        .sort({ id: -1 })
+        .skip(startIndex)
+        .limit(limitNumber)
+        .select('-__v'); // Vamos a ocultar el control de version de documentos
+
+      // Crear los encabezados de enlace (link headers)
+      const linkHeaders = {
+        first: `</users?page=1&limit=${limitNumber}>; rel="first"`,
+        prev: `</users?page=${pageNumber - 1}&limit=${limitNumber}>; rel="prev"`,
+        next: `</users?page=${pageNumber + 1}&limit=${limitNumber}>; rel="next"`,
+        last: `</users?page=${totalPages}&limit=${limitNumber}>; rel="last"`,
+      };
+
+      // Agregar los encabezados de enlace a la respuesta
+      resp.set('link', Object.values(linkHeaders).join(', '));
+
+      // Enviar la respuesta con la lista de productos
+      resp.send(products);
+    } catch (err) {
+      next(err);
+    }
+  },
+
 };
