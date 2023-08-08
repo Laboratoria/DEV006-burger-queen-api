@@ -79,4 +79,38 @@ module.exports = {
     }
   },
 
+  getProductById: async (req, resp, next) => {
+    const { productId } = req.params;
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(productId);
+    let filter;
+
+    if (isObjectId) {
+      filter = { _id: productId };
+    }
+
+    try {
+      const product = await Products.findOne(filter);
+
+      if (product) {
+        resp.status(200).json({
+          id: product._id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          type: product.type,
+          dataEntry: product.dataEntry,
+        });
+      } else {
+        return resp.status(404).json({
+          error: 'Product not found',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      resp.status(500).json({
+        error: 'Server error',
+      });
+    }
+  },
+
 };

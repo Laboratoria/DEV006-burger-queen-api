@@ -6,6 +6,7 @@ const {
 const {
   createProducts,
   getProductsCollection,
+  getProductById,
 // eslint-disable-next-line import/extensions
 } = require('../controller/products.js');
 
@@ -52,8 +53,7 @@ module.exports = (app, nextMain) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {404} si el producto con `productId` indicado no existe
    */
-  app.get('/products/:productId', requireAuth, (req, resp, next) => {
-  });
+  app.get('/products/:productId', requireAuth, getProductById);
 
   /**
    * @name POST /products

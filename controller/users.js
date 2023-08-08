@@ -22,7 +22,11 @@ module.exports = {
       const startIndex = (pageNumber - 1) * limitNumber;
 
       // Obtener la lista de usuarios paginada
-      const users = await User.find({}).sort({ id: -1 }).skip(startIndex).limit(limitNumber);
+      const users = await User.find({})
+        .sort({ id: -1 })
+        .skip(startIndex)
+        .limit(limitNumber)
+        .select('-__v');
 
       // Crear los encabezados de enlace (link headers)
       const linkHeaders = {
