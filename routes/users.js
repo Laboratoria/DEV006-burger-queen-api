@@ -35,6 +35,7 @@ const initAdminUser = (app, next) => {
   User.findOne({ email: adminUser.email }).then((users) => {
     if (!users) {
       User.create(adminUser).then((createAdmin) => {
+        // eslint-disable-next-line no-console
         console.log(`Usuario creado${createAdmin}`);
       }).catch((error) => {
         console.error('Error al crear admin:', error);
