@@ -16,7 +16,7 @@ const productsSchema = new Schema({
     default: 0,
   },
   // URL de la imagen del producto
-  Image: {
+  image: {
     type: String,
     default: '',
   },

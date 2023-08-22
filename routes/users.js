@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 // eslint-disable-next-line import/extensions
+const { response } = require('express');
+// eslint-disable-next-line import/extensions
 const User = require('../modules/users.js');
 
 const {
@@ -36,7 +38,9 @@ const initAdminUser = (app, next) => {
     if (!users) {
       User.create(adminUser).then((createAdmin) => {
         // eslint-disable-next-line no-console
-        console.log(`Usuario creado${createAdmin}`);
+        response.status(200).json({
+          createAdmin,
+        });
       }).catch((error) => {
         console.error('Error al crear admin:', error);
       });
@@ -141,7 +145,7 @@ module.exports = (app, next) => {
   app.post('/users', requireAdmin, createUser);
 
   /**
-   * @name PUT /users
+   * @name PATCH /users
    * @description Modifica una usuaria
    * @params {String} :uid `id` o `email` de la usuaria a modificar
    * @path {PUT} /users
@@ -163,7 +167,7 @@ module.exports = (app, next) => {
    * @code {404} si la usuaria solicitada no existe
    */
   // eslint-disable-next-line no-unused-vars
-  app.put('/users/:uid', requireAuth, updateUserInformation);
+  app.patch('/users/:uid', requireAuth, updateUserInformation);
 
   /**
    * @name DELETE /users

@@ -15,7 +15,7 @@ module.exports = {
 
     if (!isAdmin) {
       return resp.status(403).json({
-        error: 'You are not authorized because you are not an administrator user',
+        error: 'You are not authorized because you are not an administrator',
       });
     }
     try {
@@ -59,7 +59,7 @@ module.exports = {
         .sort({ id: -1 })
         .skip(startIndex)
         .limit(limitNumber)
-        .select('-__v'); // Vamos a ocultar el control de version de documentos
+        .select('-__v'); // ocultar el control de version de documentos
 
       // Crear los encabezados de enlace (link headers)
       const linkHeaders = {
@@ -79,6 +79,7 @@ module.exports = {
     }
   },
 
+  // eslint-disable-next-line no-unused-vars
   getProductById: async (req, resp, next) => {
     const { productId } = req.params;
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(productId);
@@ -110,6 +111,57 @@ module.exports = {
       resp.status(500).json({
         error: 'Server error',
       });
+    }
+  },
+
+  deleteProduct: async (req, resp, next) => {
+    const { productId } = req.params;
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(productId);
+    let filterProduct;
+
+    if (isObjectId) {
+      filterProduct = { _id: productId };
+    }
+
+    try {
+      const authorizedUser = (req.user.role === 'admin');
+
+      if (!authorizedUser) {
+        return resp.status(403).json({
+          error: 'You do not have authorization to delete this user',
+        });
+      }
+      const dropProduct = await Products.deleteOne(filterProduct).exec();
+      if (dropProduct) {
+        return resp.status(200).json({
+          id: dropProduct._id,
+          name: dropProduct.name,
+          price: dropProduct.price,
+          image: dropProduct.image,
+          type: dropProduct.type,
+          dataEntry: dropProduct.dataEntry,
+        });
+      }
+    } catch (error) {
+      return next(404).json({
+        error: 'Product not found',
+      });
+    }
+  },
+
+  updateProducts: async (req, resp, next) => {
+    const { productId } = req.params;
+    const {
+      name, price, image, type,
+    } = req.body;
+    try {
+      if (!name && !price && !image && !type) {
+        return next(400);
+      }
+      const updatedProduct = await Products.findByIdAndUpdate(productId, req.body, { returnDocument: 'after' });
+      resp.status(200).json(updatedProduct);
+    } catch (error) {
+      next(404);
     }
   },
 

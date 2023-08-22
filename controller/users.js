@@ -7,7 +7,7 @@ const User = require('../modules/users.js');
 // const isAdmin = require('../middleware/auth.js');
 
 module.exports = {
-  getUsers: async (req, resp, next) => {
+  getUsers: async (req, resp) => {
     try {
       // Obtener los parámetros de consulta de página y límite
       const { page = 1, limit = 10 } = req.query;
@@ -40,10 +40,12 @@ module.exports = {
       resp.set('link', Object.values(linkHeaders).join(', '));
 
       // Enviar la respuesta con la lista de usuarios
-      resp.send(users);
-    } catch (err) {
+      resp.status(200).json(users);
+    } catch (error) {
       /* console.log("mostrar error al traer usuarios de la colección", err); */
-      next(err);
+      resp.status(500).send({
+        error: 'error al traer usuarios de la colección',
+      });
     }
   },
 
@@ -63,7 +65,7 @@ module.exports = {
 
     try {
       // Verificar si el token pertenece a una usuaria administradora
-      const isAdmin = req.isAdmin === true;
+      const isAdmin = req.user.role === 'admin';
       // Verificar si el token pertenece a la misma usuaria o si es una usuaria administradora
       const authorizedUser = req.user.id === uid || isAdmin || req.user.email === uid;
 
@@ -94,7 +96,7 @@ module.exports = {
 
   createUser: async (req, resp, next) => {
     const { email, password, role } = req.body;
-    if (!email || !password || !role) {
+    if (!email && !password && !role) {
       return next(400);
     }
     // Verificar si el token pertenece a una usuaria administradora
